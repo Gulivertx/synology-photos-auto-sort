@@ -1,18 +1,34 @@
 #!/bin/bash
 
-### SCRIPT INFO ###
-# Synology photos auto sort
-# By Gulivert
-# https://github.com/Gulivertx/synology-photos-auto-sort
-###################
+### INFO #################################################
+# Synology photos auto sort                              #
+# By Gulivert                                            #
+# https://github.com/Gulivertx/synology-photos-auto-sort #
+##########################################################
 
-VERSION="0.0.1"
+VERSION="0.1"
+PID_FILE="/tmp/synology_photos_auto_sort.pid"
+ERROR_DIRECTORY="error"
 
-echo "Synology photos auto sort version $VERSION"
+echo "Synology photos and videos auto sort version $VERSION"
+echo "https://github.com/Gulivertx/synology-photos-auto-sort"
+echo "______________________________________________________"
 echo ""
 
+### Verify if a script already running
+if [ -f $PID_FILE ]; then
+  echo "Error: an other process of the script is still running" >&2
+  exit 0
+fi
+
+### Create a pid file
+echo $$ > $PID_FILE
+
+### Verify if exiftool installed
 if ! [ -x "$(command -v exiftool)" ]; then
-  echo "Error: exiftool is not installed." >&2
+  echo "Error: exiftool is not installed" >&2
+  echo "To install exiftool to your Synology NAS add package sources from http://www.cphub.net"
+  rm -f $PID_FILE
   exit 1
 fi
 
@@ -23,6 +39,7 @@ TARGET=$2
 if [ -z "$SOURCE" ] || [ -z "$TARGET" ]; then
   echo "Error: source and target folders are not specified as script arguments" >&2
   echo "Ex.: synology-photos-auto-sort.sh /path_to_source /path_to_target"
+  rm -f $PID_FILE
   exit 1
 fi
 
@@ -61,7 +78,7 @@ for EXT in "${IMG_EXT[@]}"; do
 
       # Create target folder
       mkdir -p $TARGET/$YEAR/$YEAR.$MONTH
-      cp "$FILE" $TARGET/$YEAR/$YEAR.$MONTH/$NEW_NAME
+      mv -n "$FILE" $TARGET/$YEAR/$YEAR.$MONTH/$NEW_NAME
     done
     wait
     echo "All $EXT have been moved"
@@ -87,10 +104,28 @@ for EXT in "${VIDEO_EXT[@]}"; do
 
       # Create target folder
       mkdir -p $TARGET/$YEAR/$YEAR.$MONTH
-      cp "$FILE" $TARGET/$YEAR/$YEAR.$MONTH/$NEW_NAME
+      mv -n "$FILE" $TARGET/$YEAR/$YEAR.$MONTH/$NEW_NAME
     done
     wait
     echo "All $EXT have been moved"
     echo ""
   fi
 done
+
+### Move all files still not moved by the above rules
+UNMOVED_FILES_COUNTER=$(ls *.* 2> /dev/null | wc -l | xargs)
+
+if [ $UNMOVED_FILES_COUNTER != 0 ]; then
+  echo "There is $UNMOVED_FILES_COUNTER unmoved files, these files will be moved into error folder"
+  echo ""
+
+  mkdir -p $SOURCE/$ERROR_DIRECTORY
+
+  for FILE in *.*; do
+    mv "$FILE" $SOURCE/$ERROR_DIRECTORY/"$FILE"
+  done
+fi
+
+rm -f $PID_FILE
+
+exit 0
