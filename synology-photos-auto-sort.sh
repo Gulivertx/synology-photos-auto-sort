@@ -111,6 +111,7 @@ if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
     echo ""
 
     mkdir -p ${SOURCE}/${ERROR_DIRECTORY}
+    mkdir -p ${SOURCE}/${LOG_DIRECTORY}
 
     # Create a new log file
     CURRENT_DATE=`date +"%Y-%m-%d_%H-%M"`
