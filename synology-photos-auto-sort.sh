@@ -16,31 +16,31 @@ echo "______________________________________________________"
 echo ""
 
 ### Verify if a script already running
-if [ -f $PID_FILE ]; then
-  echo "Error: an other process of the script is still running" >&2
-  exit 0
+if [[ -f ${PID_FILE} ]]; then
+    echo "Error: an other process of the script is still running" >&2
+    exit 0
 fi
 
 ### Create a pid file
-echo $$ > $PID_FILE
+echo $$ > ${PID_FILE}
 
 ### Verify if exiftool installed
-if ! [ -x "$(command -v exiftool)" ]; then
-  echo "Error: exiftool is not installed" >&2
-  echo "To install exiftool to your Synology NAS add package sources from http://www.cphub.net"
-  rm -f $PID_FILE
-  exit 1
+if ! [[ -x "$(command -v exiftool)" ]]; then
+    echo "Error: exiftool is not installed" >&2
+    echo "To install exiftool to your Synology NAS add package sources from http://www.cphub.net"
+    rm -f ${PID_FILE}
+    exit 1
 fi
 
 ### Get script arguments source and target folders
 SOURCE=$1
 TARGET=$2
 
-if [ -z "$SOURCE" ] || [ -z "$TARGET" ]; then
-  echo "Error: source and target folders are not specified as script arguments" >&2
-  echo "Ex.: synology-photos-auto-sort.sh /path_to_source /path_to_target"
-  rm -f $PID_FILE
-  exit 1
+if [[ -z ${SOURCE} ]] || [[ -z ${TARGET} ]]; then
+    echo "Error: source and target folders are not specified as script arguments" >&2
+    echo "Ex.: synology-photos-auto-sort.sh /path_to_source /path_to_target"
+    rm -f ${PID_FILE}
+    exit 1
 fi
 
 echo "Source folder : $SOURCE"
@@ -58,20 +58,20 @@ echo "Allowed video formats: ${VIDEO_EXT[@]}"
 echo ""
 
 ### Move to source folder
-cd $SOURCE
+cd ${SOURCE}
 
 echo "Start image process"
 echo ""
 
 for EXT in "${IMG_EXT[@]}"; do
-    FILES_COUNTER=$(ls *.$EXT 2> /dev/null | wc -l)
+    FILES_COUNTER=$(ls *.${EXT} 2> /dev/null | wc -l)
 
-    if [ $FILES_COUNTER != 0 ]; then
-        for FILE in *.$EXT; do
-            DATETIME=$(exiftool "$FILE" | grep -i "create date" | head -1 | xargs)
+    if [[ ${FILES_COUNTER} != 0 ]]; then
+        for FILE in *.${EXT}; do
+            DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
 
             # Verify if we have exif data available
-            if [ -z "$DATETIME" ]; then
+            if [[ -z ${DATETIME} ]]; then
                 continue
             fi
 
@@ -83,10 +83,10 @@ for EXT in "${IMG_EXT[@]}"; do
             # Create target folder
             YEAR=${DATE:0:4}
             MONTH=${DATE:5:2}
-            mkdir -p $TARGET/$YEAR/$YEAR.$MONTH
+            mkdir -p ${TARGET}/${YEAR}/${YEAR}.${MONTH}
 
             # Move the file to target folder
-            mv -n "$FILE" $TARGET/$YEAR/$YEAR.$MONTH/$NEW_NAME
+            mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
         done
 
         # Wait until the copy process is done
@@ -101,14 +101,14 @@ echo "Start video process"
 echo ""
 
 for EXT in "${VIDEO_EXT[@]}"; do
-    FILES_COUNTER=$(ls *.$EXT 2> /dev/null | wc -l)
+    FILES_COUNTER=$(ls *.${EXT} 2> /dev/null | wc -l)
 
-    if [ $FILES_COUNTER != 0 ]; then
+    if [[ ${FILES_COUNTER} != 0 ]]; then
         for FILE in *.$EXT; do
-            DATETIME=$(exiftool "$FILE" | grep -i "create date" | head -1 | xargs)
+            DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
 
             # Verify if we have exif data available
-            if [ -z "$DATETIME" ]; then
+            if [[ -z ${DATETIME} ]]; then
                 continue
             fi
 
@@ -120,10 +120,10 @@ for EXT in "${VIDEO_EXT[@]}"; do
             # Create target folde
             YEAR=${DATE:0:4}
             MONTH=${DATE:5:2}
-            mkdir -p $TARGET/$YEAR/$YEAR.$MONTH
+            mkdir -p ${TARGET}/${YEAR}/${YEAR}.${MONTH}
 
             # Move the file to target folder
-            mv -n "$FILE" $TARGET/$YEAR/$YEAR.$MONTH/$NEW_NAME
+            mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
         done
 
         # Wait until the copy process is done
@@ -137,20 +137,20 @@ done
 ### Move all files still not moved by the above rules in an error folder
 UNMOVED_FILES_COUNTER=$(ls *.* 2> /dev/null | wc -l | xargs)
 
-if [ $UNMOVED_FILES_COUNTER != 0 ]; then
+if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
     echo "There is $UNMOVED_FILES_COUNTER unmoved files, these files will be moved into error folder"
     echo ""
 
-    mkdir -p $SOURCE/$ERROR_DIRECTORY
+    mkdir -p ${SOURCE}/${ERROR_DIRECTORY}
 
     for FILE in *.*; do
         # Get file extension
         EXT="${FILE##*.}"
 
-        DATETIME=$(exiftool "$FILE" | grep -i "create date" | head -1 | xargs)
+        DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
 
         # Verify if we have exif data available
-        if [ -z "$DATETIME" ]; then
+        if [[ -z ${DATETIME} ]]; then
             echo "No exif data available for image $FILE"
             echo "Use original filename"
             FILENAME="${FILE%.*}"
@@ -161,10 +161,10 @@ if [ $UNMOVED_FILES_COUNTER != 0 ]; then
             NEW_FILENAME=${DATE//:}_${TIME//:}.${EXT,,}
         fi
 
-        mv "$FILE" $SOURCE/$ERROR_DIRECTORY/"$NEW_FILENAME"
+        mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
     done
 fi
 
-rm -f $PID_FILE
+rm -f ${PID_FILE}
 
 exit 0
