@@ -81,6 +81,8 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
+                echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
+                let PROGRESS++
                 continue
             fi
 
@@ -98,7 +100,7 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
             mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
         fi
 
-        echo -ne "$(expr ${PROGRESS} * 100 / ${FILES_COUNTER})%\033[0K\r"
+        echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
         let PROGRESS++
     done
 
@@ -149,7 +151,7 @@ if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
             mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
         fi
 
-        echo -ne "$(expr ${PROGRESS} * 100 / ${FILES_COUNTER})%\033[0K\r"
+        echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
         let PROGRESS++
     done
 fi
