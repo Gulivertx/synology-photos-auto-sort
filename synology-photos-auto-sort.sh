@@ -63,15 +63,19 @@ echo "Start process"
 
 # Count files
 FILES_COUNTER=$(ls *.* 2> /dev/null | wc -l | xargs)
+TOTAL_FILES_COUNTER=${FILES_COUNTER}
+
+# Get all files in an array
+FILES_ARR=(*.*)
 
 echo "$FILES_COUNTER files to process"
 echo ""
 
 if [[ ${FILES_COUNTER} != 0 ]]; then
-    echo -ne "0%\033[0K\r"
-    PROGRESS=1
+    PROGRESS=0
+    echo -ne "${PROGRESS}%\033[0K\r"
 
-    for FILE in *.*; do
+    for FILE in ${FILES_ARR[@]}; do
         FILENAME="${FILE%.*}" # Get filename
         EXT="${FILE##*.}" # Get file extension
 
@@ -81,8 +85,8 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
-                echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
                 let PROGRESS++
+                echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
                 continue
             fi
 
@@ -96,12 +100,18 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
             MONTH=${DATE:5:2}
             mkdir -p ${TARGET}/${YEAR}/${YEAR}.${MONTH}
 
-            # Move the file to target folder
-            mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
+            # Move the file to target folder if not exist in target folder
+            if [[ ! -f ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME} ]]; then
+                mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
+                let FILES_COUNTER--
+
+                # Remove the moved file from the array
+                FILES_ARR=("${FILES_ARR[@]/$FILE}")
+            fi
         fi
 
-        echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
         let PROGRESS++
+        echo -ne "$((${PROGRESS} * 100 / ${TOTAL_FILES_COUNTER}))%\033[0K\r"
     done
 
     # Wait until the process is done
@@ -112,14 +122,12 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 fi
 
 ### Move all files still not moved by the above rule in an error folder
-UNMOVED_FILES_COUNTER=$(ls *.* 2> /dev/null | wc -l | xargs)
-
-if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
-    echo "$UNMOVED_FILES_COUNTER unmoved files, these files will be moved into error folder"
+if [[ ${FILES_COUNTER} != 0 ]]; then
+    echo "$FILES_COUNTER unmoved files, these files will be moved into error folder"
     echo ""
 
-    echo -ne "0%\033[0K\r"
-    PROGRESS=1
+    PROGRESS=0
+    echo -ne "${PROGRESS}%\033[0K\r"
 
     mkdir -p ${SOURCE}/${ERROR_DIRECTORY}
     mkdir -p ${SOURCE}/${LOG_DIRECTORY}
@@ -129,7 +137,7 @@ if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
     LOG_FILE="${LOG_DIRECTORY}/${CURRENT_DATE}.log"
     touch ${LOG_FILE}
 
-    for FILE in *.*; do
+    for FILE in ${FILES_ARR[@]}; do
         FILENAME="${FILE%.*}" # Get filename
         EXT="${FILE##*.}" # Get file extension
 
@@ -151,9 +159,17 @@ if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
             mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
         fi
 
-        echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
         let PROGRESS++
+        echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
     done
+
+    # Wait until the process is done
+    wait
+fi
+
+# Clean @eaDir
+if [[ -d "${SOURCE/}@eaDir" ]]; then
+    rm -Rf "${SOURCE/}@eaDir"
 fi
 
 rm -f ${PID_FILE}
