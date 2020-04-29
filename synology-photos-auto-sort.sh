@@ -68,6 +68,9 @@ echo "$FILES_COUNTER files to process"
 echo ""
 
 if [[ ${FILES_COUNTER} != 0 ]]; then
+    echo -ne "0%\033[0K\r"
+    PROGRESS=1
+
     for FILE in *.*; do
         FILENAME="${FILE%.*}" # Get filename
         EXT="${FILE##*.}" # Get file extension
@@ -94,6 +97,9 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
             # Move the file to target folder
             mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
         fi
+
+        echo -ne "$PROGRESS * 100 / $FILES_COUNTER%\033[0K\r"
+        let PROGRESS++
     done
 
     # Wait until the process is done
@@ -109,6 +115,9 @@ UNMOVED_FILES_COUNTER=$(ls *.* 2> /dev/null | wc -l | xargs)
 if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
     echo "$UNMOVED_FILES_COUNTER unmoved files, these files will be moved into error folder"
     echo ""
+
+    echo -ne "0%\033[0K\r"
+    PROGRESS=1
 
     mkdir -p ${SOURCE}/${ERROR_DIRECTORY}
     mkdir -p ${SOURCE}/${LOG_DIRECTORY}
@@ -139,6 +148,9 @@ if [[ ${UNMOVED_FILES_COUNTER} != 0 ]]; then
 
             mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
         fi
+
+        echo -ne "$PROGRESS * 100 / $FILES_COUNTER%\033[0K\r"
+        let PROGRESS++
     done
 fi
 
