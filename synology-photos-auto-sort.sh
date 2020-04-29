@@ -14,7 +14,7 @@ LOG_DIRECTORY="logs"
 ERROR_DIRECTORY="error"
 
 ### Allowed image and videos extensions
-ALLOWED_EXT="jpg JPG jpeg JPEG heic HEIC mov MOV heiv HEIV m4v M4V"
+ALLOWED_EXT="jpg JPG jpeg JPEG heic HEIC mov MOV heiv HEIV m4v M4V mp4 MP4"
 
 echo "Synology photos and videos auto sort version $VERSION"
 echo "https://github.com/Gulivertx/synology-photos-auto-sort"
