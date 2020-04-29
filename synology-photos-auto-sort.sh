@@ -6,7 +6,7 @@
 # https://github.com/Gulivertx/synology-photos-auto-sort #
 ##########################################################
 
-VERSION="0.1"
+VERSION="0.2"
 PID_FILE="/tmp/synology_photos_auto_sort.pid"
 ERROR_DIRECTORY="error"
 
@@ -48,10 +48,10 @@ echo "Target folder : $TARGET"
 echo ""
 
 ### Allowed image extensions
-IMG_EXT=( "jpg" "jpeg" "heic" )
+IMG_EXT=( "jpg" "JPG" "jpeg" "JPEG" "heic" "HEIC" )
 
 ### Allowed video extensions
-VIDEO_EXT=( "mov" "heiv" "m4v")
+VIDEO_EXT=( "mov" "MOV" "heiv" "HEIV" "m4v" "M4V")
 
 echo "Allowed image formats: ${IMG_EXT[@]}"
 echo "Allowed video formats: ${VIDEO_EXT[@]}"
@@ -71,7 +71,7 @@ for EXT in "${IMG_EXT[@]}"; do
       DATETIME=$(exiftool "$FILE" | grep -i "create date" | head -1 | xargs)
       DATE=${DATETIME:14:10}
       TIME=${DATETIME:25:8}
-      NEW_NAME=${DATE//:}_${TIME//:}.$EXT
+      NEW_NAME=${DATE//:}_${TIME//:}.${EXT,,}
 
       YEAR=${DATE:0:4}
       MONTH=${DATE:5:2}
@@ -97,7 +97,7 @@ for EXT in "${VIDEO_EXT[@]}"; do
       DATETIME=$(exiftool "$FILE" | grep -i "create date" | head -1 | xargs)
       DATE=${DATETIME:14:10}
       TIME=${DATETIME:25:8}
-      NEW_NAME=${DATE//:}_${TIME//:}.$EXT
+      NEW_NAME=${DATE//:}_${TIME//:}.${EXT,,}
 
       YEAR=${DATE:0:4}
       MONTH=${DATE:5:2}
