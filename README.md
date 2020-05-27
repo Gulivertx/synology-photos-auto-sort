@@ -10,8 +10,9 @@ To work this script need **exiftool** installed on your NAS. The best way to ins
   Full exemple : ./synology-photos-auto-sort.sh /volume1/Download/images_temp/ /volume1/photo
 * The script will move and rename photos and videos in taget folder like this structure :
   **/Target_folder/YEAR/Year.Month/yearmonthday_hourminutesseconds.jpg**
-* If a file with the same name already exist or exif data is not available, th script will create an error folder inside the source folder and move images and videos inside this error folder
-* A logs folder is available with all errors listed by sync date
+* If a file with the same name already exist, there is a base64 file comparison to ensure that the content is different, if it is different the image will by copied and get a new name (same as target + unique ID), if the content is the same the image is copied in a duplicate folder
+* If exif data is not available, th script will create an error folder inside the source folder and move images and videos inside this error folder
+* A logs folder is available with all errors /duplicated listed by sync date
 
 ## How to automatise this script?
 Access to your NAS with ssh, then clone this repository.
