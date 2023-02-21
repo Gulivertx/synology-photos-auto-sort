@@ -15,6 +15,7 @@ To work this script need **exiftool** installed on your NAS. The best way to ins
 * If a file with the same name already exist, there is a base64 file comparison to ensure that the content is different, if it is different the image will by copied and get a new name (same as target + unique ID), if the content is the same the image is copied in a duplicate folder
 * If exif data is not available, th script will create an error folder inside the source folder and move images and videos inside this error folder
 * A logs folder is available with all errors /duplicated listed by sync date
+* The filename and path must not have any whitespace !!!
 
 ## How to automatise this script?
 Access to your NAS with ssh, then clone this repository.
