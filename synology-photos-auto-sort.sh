@@ -6,7 +6,7 @@
 # https://github.com/Gulivertx/synology-photos-auto-sort
 ##########################################################
 
-VERSION="1.1"
+VERSION="1.2"
 PID_FILE="/tmp/synology_photos_auto_sort.pid"
 LOG_DIRECTORY="logs"
 
