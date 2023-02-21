@@ -1,7 +1,7 @@
 # synology-photos-auto-sort
 A script to rename, move and sort images and videos files from a source folder to a target folder.
 
-This script is first writted to be used on a Synology NAS, but it will work on any System where bash and exiftool can be used. That means you can use this script in a Linux computer, MacOS, any other NAS working on Linux based system and even Windows with a Linux subsystem installed via WSL.
+This script is first writted to be used on a Synology NAS, but it will work on any System where bash and exiftool can be used. That means you can use this script in a Linux computer, MacOS, any other NAS working on Linux based system and even Windows with a Linux subsystem installed via WSL. I tested it on synology DSM6 and Debian 9, 10 and 11 with success.
 
 ## How it works?
 To work this script need **exiftool** installed on your NAS. The best way to install this tool is to add a new package sources from http://www.cphub.net then you will have exiftool available as a package.
