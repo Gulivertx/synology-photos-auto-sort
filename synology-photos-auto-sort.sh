@@ -122,7 +122,7 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
         # Verify if the extension is allowed
         if [[ ${ALLOWED_EXT} == *"$EXT"* ]]; then
-            DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
+            DATETIME=$(exiftool ${FILE} | grep -a -i "create date" | head -1 | xargs)
 
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
@@ -192,7 +192,7 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
         # Verify if the extension is allowed
         if [[ ${ALLOWED_EXT} == *"$EXT"* ]]; then
-            DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
+            DATETIME=$(exiftool ${FILE} | grep -a -i "create date" | head -1 | xargs)
 
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
