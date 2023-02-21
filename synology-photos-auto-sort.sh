@@ -244,7 +244,7 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
                     NEW_FILENAME=${FILENAME=//:}_${UUID}.${EXT,,}
 
-                    mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
+                    mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_FILENAME}
 
                     let PROGRESS++
                     echo -ne "$((${PROGRESS} * 100 / ${TOTAL_FILES_COUNTER}))%\033[0K\r"
