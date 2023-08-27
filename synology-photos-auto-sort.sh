@@ -6,7 +6,7 @@
 # https://github.com/Gulivertx/synology-photos-auto-sort
 ##########################################################
 
-VERSION="1.3"
+VERSION="1.4"
 PID_FILE="/tmp/synology_photos_auto_sort.pid"
 LOG_DIRECTORY="logs"
 
@@ -126,9 +126,14 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
-                let PROGRESS++
-                echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
-                continue
+                # Try to get modify date
+                DATETIME=$(exiftool ${FILE} | grep -a -i "File Modification Date/Time" | head -1 | xargs)
+
+                if [[ -z ${DATETIME} ]]; then
+                    let PROGRESS++
+                    echo -ne "$((${PROGRESS} * 100 / ${FILES_COUNTER}))%\033[0K\r"
+                    continue
+                fi
             fi
 
             # Extract date, time year and month and build new filename
@@ -193,9 +198,10 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
         # Verify if the extension is allowed
         if [[ ${ALLOWED_EXT} == *"$EXT"* ]]; then
             DATETIME=$(exiftool ${FILE} | grep -a -i "create date" | head -1 | xargs)
+            MODIFY_DATETIME=$(exiftool ${FILE} | grep -a -i "File Modification Date/Time" | head -1 | xargs)
 
             # Verify if we have exif data available
-            if [[ -z ${DATETIME} ]]; then
+            if [[ -z ${DATETIME} ] && [ -z ${MODIFY_DATETIME} ]]; then
                 NEW_FILENAME=${FILENAME=//:}_exif_data_missing.${EXT,,}
                 echo "No exif data available for image ${FILE}, moved into ${ERROR_DIRECTORY} and renamed as ${NEW_FILENAME}" >> ${LOG_FILE}
                 mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
@@ -209,6 +215,10 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
                 continue
             else
+                if [[ -z ${DATETIME} ]]; then
+                    DATETIME=${MODIFY_DATETIME}
+                fi
+
                 DATE=${DATETIME:14:10}
                 TIME=${DATETIME:25:8}
                 NEW_FILENAME=${DATE//:}_${TIME//:}.${EXT,,}
