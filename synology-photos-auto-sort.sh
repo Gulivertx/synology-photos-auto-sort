@@ -6,7 +6,7 @@
 # https://github.com/Gulivertx/synology-photos-auto-sort
 ##########################################################
 
-VERSION="1.4"
+VERSION="1.5"
 PID_FILE="/tmp/synology_photos_auto_sort.pid"
 LOG_DIRECTORY="logs"
 
@@ -201,7 +201,7 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
             MODIFY_DATETIME=$(exiftool ${FILE} | grep -a -i "File Modification Date/Time" | head -1 | xargs)
 
             # Verify if we have exif data available
-            if [[ -z ${DATETIME} ] && [ -z ${MODIFY_DATETIME} ]]; then
+            if [[ -z ${DATETIME} ]] && [[ -z ${MODIFY_DATETIME} ]]; then
                 NEW_FILENAME=${FILENAME=//:}_exif_data_missing.${EXT,,}
                 echo "No exif data available for image ${FILE}, moved into ${ERROR_DIRECTORY} and renamed as ${NEW_FILENAME}" >> ${LOG_FILE}
                 mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
